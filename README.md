@@ -1,0 +1,43 @@
+# X Advanced Search Builder
+
+A single-file tool that compiles X (Twitter) advanced-search queries from a form, then opens them live on X. No build step, no dependencies, no data leaves the page.
+
+Designed as a "casefile instrument": warm-paper palette, a single signal accent, IBM Plex Mono / Space Grotesk type, and a live compiled-query readout.
+
+## Features
+
+- **Words** - all-of, exact phrase, any-of (`OR` grouping), exclusions, hashtags, language.
+- **Accounts** - `from:`, `to:`, and `@mention`.
+- **Time window** - `since` / `until` by date, with an optional time field that emits the `YYYY-MM-DD_HH:MM:SS_UTC` form.
+- **Engagement thresholds** - `min_replies:`, `min_faves:`, `min_retweets:`.
+- **Filters** - media, images, videos, native video, verified, blue verified, replies, reposts, quotes, news (each as a toggle, with exclude variants).
+- **Geo** - `near:` / `within:`, or a `geocode:` form when given `lat,long`.
+- **Quick presets** - one-tap starting points (viral, original-only, media-only, and so on).
+- **Live readout** - syntax-highlighted query plus the full `x.com/search` URL, with copy-query, copy-URL, open, and reset actions.
+- **Mobile** - the query panel becomes a bottom-sheet drawer so the result stays reachable while filling the form; touch-sized controls, no iOS focus-zoom.
+
+## Usage
+
+Open `x-advanced-search-builder.html` in any modern browser. Fill fields; the query and URL build themselves. Use **Open on X** to run it live.
+
+Everything runs client-side. There is no server and no telemetry.
+
+## Deploy on Vercel
+
+This is a static site with no build.
+
+**From the dashboard:** import the GitHub repo at <https://vercel.com/new>. Framework preset = **Other**, leave build command and output directory empty. Deploy.
+
+**From the CLI:**
+
+```bash
+npm i -g vercel
+vercel        # preview
+vercel --prod # production
+```
+
+`vercel.json` rewrites `/` to `x-advanced-search-builder.html`, so the root URL serves the tool, and `cleanUrls` makes `/x-advanced-search-builder` resolve without the extension.
+
+## License
+
+MIT
