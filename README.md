@@ -18,7 +18,7 @@ Designed as a "casefile instrument": warm-paper palette, a single signal accent,
 
 ## Usage
 
-Open `x-advanced-search-builder.html` in any modern browser. Fill fields; the query and URL build themselves. Use **Open on X** to run it live.
+Open `index.html` in any modern browser. Fill fields; the query and URL build themselves. Use **Open on X** to run it live.
 
 Everything runs client-side. There is no server and no telemetry.
 
@@ -36,7 +36,7 @@ vercel        # preview
 vercel --prod # production
 ```
 
-`vercel.json` rewrites `/` to `x-advanced-search-builder.html`, so the root URL serves the tool, and `cleanUrls` makes `/x-advanced-search-builder` resolve without the extension.
+The entry point is `index.html`, so Vercel serves the tool at the root URL with no build and no rewrite. `vercel.json` just sets `cleanUrls` and a couple of security headers.
 
 ## License
 
