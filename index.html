@@ -31,19 +31,26 @@
 
   /* ---- masthead ---- */
   .mast{background:var(--card);border-bottom:1px solid var(--ink)}
-  .mast-in{display:flex;align-items:center;gap:18px;padding:20px 32px}
-  .mark{width:40px;height:40px;flex:none;display:grid;place-items:center;
-    border:1.5px solid var(--ink);color:var(--ink);font-size:20px;border-radius:3px;
-    box-shadow:3px 3px 0 var(--accent)}
-  .id{display:flex;flex-direction:column;gap:3px}
-  .kicker{font-family:var(--mono);font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;
+  .mast-in{display:flex;align-items:baseline;gap:16px;padding:18px 24px}
+  .mark{width:42px;height:42px;flex:none;display:grid;place-items:center;
+    border:2px solid var(--accent);color:var(--ink);font-size:22px;border-radius:4px;
+    box-shadow:2px 2px 0 var(--accent);background:var(--card)}
+  .id{display:flex;flex-direction:column;gap:2px}
+  .kicker{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;
     color:var(--accent);font-weight:600}
-  h1{font-family:var(--disp);font-size:27px;font-weight:700;letter-spacing:-.012em;margin:0;line-height:1}
-  .mast-meta{margin-left:auto;display:flex;flex-direction:column;gap:4px;text-align:right;
-    font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:var(--mut);text-transform:uppercase}
+  h1{font-family:var(--disp);font-size:26px;font-weight:700;letter-spacing:-.01em;margin:0;line-height:1.05}
+  .mast-meta{margin-left:auto;display:flex;flex-direction:column;gap:3px;text-align:right;
+    font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;color:var(--mut);text-transform:uppercase}
   .mast-meta span:first-child{color:var(--ink2);font-weight:600}
-  .mast-strip{height:7px;background:
-    repeating-linear-gradient(90deg,var(--ink) 0 9px,transparent 9px 18px);opacity:.85}
+  .mast-strip{height:6px;background:
+    repeating-linear-gradient(90deg,var(--ink) 0 8px,transparent 8px 16px);opacity:.8}
+
+  @media(max-width:640px){
+    .mast-in{padding:14px 18px;gap:14px}
+    .mark{width:38px;height:38px;font-size:19px;border-width:1.5px}
+    h1{font-size:23px}
+    .kicker{font-size:9.5px}
+  }
 
   /* ---- layout ---- */
   .layout{display:grid;grid-template-columns:1.42fr 1fr;gap:48px;padding:34px 0 60px;align-items:start}
@@ -260,11 +267,7 @@
             <select id="lang">
               <option value="">any</option>
               <option value="en">English</option><option value="ar">Arabic</option>
-              <option value="fa">Persian</option><option value="ru">Russian</option>
-              <option value="uk">Ukrainian</option><option value="zh">Chinese</option>
-              <option value="es">Spanish</option><option value="fr">French</option>
-              <option value="he">Hebrew</option><option value="tr">Turkish</option>
-              <option value="de">German</option><option value="ja">Japanese</option>
+              <option value="fa">Persian</option><option value="ru">Russian</option><option value="uk">Ukrainian</option><option value="zh">Chinese</option><option value="es">Spanish</option><option value="fr">French</option><option value="he">Hebrew</option><option value="tr">Turkish</option><option value="de">German</option><option value="ja">Japanese</option>
             </select></div>
         </div>
       </section>
