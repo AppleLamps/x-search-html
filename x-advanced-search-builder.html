@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>X Advanced Search Builder · Casefile Bench</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#e7e3d7; --card:#f6f4ec; --field:#fcfbf6;
+    --ink:#191813; --ink2:#403d33; --mut:#726e5f; --faint:#9c977f;
+    --line:#d6cfbc; --rule:#c8bfa8;
+    --accent:#bd3a22; --accent-d:#9c2e19;
+    --screen:#15140f; --screen-line:#272418;
+    --s-tok:#86b2cf; --s-val:#efebdc; --s-neg:#e58a6f; --s-dim:#6f6b59;
+    --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+    --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+    --disp:"Space Grotesk","IBM Plex Sans",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+    line-height:1.5;-webkit-font-smoothing:antialiased;
+    background-image:linear-gradient(var(--paper),var(--paper)),
+      repeating-linear-gradient(90deg,transparent 0 39px,rgba(120,110,80,.035) 39px 40px);
+    padding-bottom:0}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 32px}
+  a{color:inherit}
+
+  /* ---- masthead ---- */
+  .mast{background:var(--card);border-bottom:1px solid var(--ink)}
+  .mast-in{display:flex;align-items:center;gap:18px;padding:20px 32px}
+  .mark{width:40px;height:40px;flex:none;display:grid;place-items:center;
+    border:1.5px solid var(--ink);color:var(--ink);font-size:20px;border-radius:3px;
+    box-shadow:3px 3px 0 var(--accent)}
+  .id{display:flex;flex-direction:column;gap:3px}
+  .kicker{font-family:var(--mono);font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--accent);font-weight:600}
+  h1{font-family:var(--disp);font-size:27px;font-weight:700;letter-spacing:-.012em;margin:0;line-height:1}
+  .mast-meta{margin-left:auto;display:flex;flex-direction:column;gap:4px;text-align:right;
+    font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:var(--mut);text-transform:uppercase}
+  .mast-meta span:first-child{color:var(--ink2);font-weight:600}
+  .mast-strip{height:7px;background:
+    repeating-linear-gradient(90deg,var(--ink) 0 9px,transparent 9px 18px);opacity:.85}
+
+  /* ---- layout ---- */
+  .layout{display:grid;grid-template-columns:1.42fr 1fr;gap:48px;padding:34px 0 60px;align-items:start}
+  @media(max-width:940px){.layout{grid-template-columns:1fr;gap:34px}}
+
+  /* ---- sections ---- */
+  .sec{margin-bottom:30px}
+  .sechd{display:flex;align-items:baseline;gap:13px;margin-bottom:16px}
+  .ix{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--accent);
+    letter-spacing:.04em;flex:none;width:20px}
+  .sechd h2{font-family:var(--disp);font-size:15px;font-weight:600;letter-spacing:.01em;
+    margin:0;text-transform:none;color:var(--ink)}
+  .sechd .ln{flex:1;height:1px;background:var(--rule);align-self:center}
+
+  .lbl{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--mut);margin:0 0 6px}
+  .field{margin-bottom:15px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:15px}
+  @media(max-width:520px){.grid3{grid-template-columns:1fr 1fr}}
+
+  input[type=text],input[type=date],input[type=time],input[type=number],select{
+    width:100%;background:var(--field);border:1px solid var(--line);color:var(--ink);
+    border-radius:3px;padding:10px 11px;font-family:var(--sans);font-size:14px;outline:none;
+    transition:border-color .12s,box-shadow .12s}
+  input::placeholder{color:var(--faint)}
+  input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(189,58,34,.13)}
+  select{appearance:none;background-image:
+    linear-gradient(45deg,transparent 50%,var(--mut) 50%),
+    linear-gradient(135deg,var(--mut) 50%,transparent 50%);
+    background-position:calc(100% - 16px) 17px,calc(100% - 11px) 17px;
+    background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-right:30px}
+  .dt{display:grid;grid-template-columns:1.18fr .82fr;gap:9px}
+  .hint{font-family:var(--mono);font-size:11px;color:var(--mut);margin-top:7px;line-height:1.55}
+
+  /* ---- chips ---- */
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{font-family:var(--mono);font-size:11.5px;letter-spacing:.02em;color:var(--ink2);
+    border:1px solid var(--line);background:var(--field);padding:7px 12px;border-radius:3px;
+    cursor:pointer;user-select:none;transition:.12s;white-space:nowrap}
+  .chip:hover{border-color:var(--ink);color:var(--ink)}
+  .chip.on{background:var(--ink);border-color:var(--ink);color:var(--card);font-weight:500}
+  .chip.neg.on{background:var(--accent);border-color:var(--accent);color:#fff}
+
+  #presets .chip{border-style:none;background:transparent;border-left:2px solid var(--accent);
+    border-radius:0;color:var(--ink2);padding:5px 11px 5px 10px}
+  #presets .chip:hover{background:rgba(189,58,34,.08);color:var(--ink)}
+
+  /* ---- note ---- */
+  .note{margin-top:16px;border-left:2px solid var(--accent);padding:2px 0 2px 14px}
+  .note b.tag{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--accent);margin-bottom:4px;font-weight:600}
+  .note p{margin:0;font-size:12.5px;color:var(--ink2);line-height:1.6}
+  .note p b{color:var(--ink);font-family:var(--mono);font-size:12px}
+
+  /* ---- side / readout ---- */
+  .side{position:sticky;top:24px;display:flex;flex-direction:column;gap:20px}
+  @media(max-width:940px){.side{position:static}}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:5px;overflow:hidden}
+  .panel-hd{display:flex;align-items:center;gap:10px;padding:13px 16px;border-bottom:1px solid var(--line)}
+  .panel-hd .ix{width:auto}
+  .panel-hd h2{font-family:var(--disp);font-size:13.5px;font-weight:600;margin:0}
+  .live{margin-left:auto;font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;
+    color:var(--accent);font-weight:600;display:flex;align-items:center;gap:5px}
+  .live::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--accent);
+    box-shadow:0 0 0 0 rgba(189,58,34,.5);animation:pulse 2s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(189,58,34,.45)}70%{box-shadow:0 0 0 6px rgba(189,58,34,0)}100%{box-shadow:0 0 0 0 rgba(189,58,34,0)}}
+
+  .readout{background:var(--screen);padding:16px;border-bottom:1px solid var(--line);
+    background-image:repeating-linear-gradient(transparent 0 27px,var(--screen-line) 27px 28px)}
+  .qbox{font-family:var(--mono);font-size:13.5px;line-height:1.85;color:var(--s-val);
+    word-break:break-word;min-height:56px}
+  .qbox .ph{color:var(--s-dim)}
+  .qbox .tok{color:var(--s-tok)} .qbox .val{color:var(--s-val)} .qbox .neg{color:var(--s-neg)}
+
+  .actions{display:flex;flex-wrap:wrap;gap:8px;padding:14px 16px}
+  .btn{appearance:none;border:1px solid var(--line);background:var(--field);color:var(--ink);
+    font-family:var(--mono);font-size:12px;letter-spacing:.02em;padding:9px 13px;border-radius:3px;
+    cursor:pointer;transition:.12s;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+  .btn:hover{border-color:var(--ink)}
+  .btn.primary{background:var(--ink);border-color:var(--ink);color:var(--card);font-weight:500}
+  .btn.primary:hover{background:var(--accent);border-color:var(--accent)}
+  .btn.ghost:hover{border-color:var(--accent);color:var(--accent)}
+  .url{font-family:var(--mono);font-size:11px;color:var(--mut);padding:0 16px 16px;
+    word-break:break-all;line-height:1.6}
+
+  /* ---- operator reference ---- */
+  .ops dl{margin:0}
+  .ops .row{display:grid;grid-template-columns:96px 1fr;gap:12px;padding:10px 16px;
+    border-bottom:1px solid var(--line);font-family:var(--mono);font-size:12px;align-items:baseline}
+  .ops .row:last-child{border-bottom:none}
+  .ops dt{color:var(--accent);font-weight:600}
+  .ops dd{margin:0;color:var(--ink2);line-height:1.55}
+  .ops dd b{color:var(--ink);font-weight:600}
+
+  /* ---- footer ---- */
+  footer{border-top:1px solid var(--ink);background:var(--card)}
+  .foot{display:flex;flex-wrap:wrap;gap:6px 22px;align-items:center;padding:14px 32px;
+    font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut)}
+  .foot .dot{color:var(--accent)}
+  .foot .sp{margin-left:auto}
+
+  /* ---- mobile drawer + responsive ---- */
+  .drawer-handle{display:none}
+  .drawer-backdrop{display:none}
+
+  @media(max-width:940px){
+    body{padding-bottom:172px}
+    .side{position:static;display:block}
+
+    /* query panel becomes a bottom sheet */
+    .query.panel{position:fixed;left:0;right:0;bottom:0;z-index:60;
+      border:1px solid var(--ink);border-bottom:none;border-radius:14px 14px 0 0;
+      box-shadow:0 -14px 34px rgba(20,18,10,.22);max-height:84vh;
+      display:flex;flex-direction:column}
+    .query .panel-hd{display:none}
+    .query .readout{padding:10px 16px;max-height:48px;overflow:hidden;border-radius:0}
+    .query .qbox{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:0;line-height:1.6}
+    .query .url{display:none}
+    .query .actions{padding:12px 14px calc(12px + env(safe-area-inset-bottom,0px))}
+    .query .actions .btn{flex:1;justify-content:center;min-height:46px}
+    .query .actions #copyU,.query .actions #reset{display:none}
+
+    .drawer-handle{display:flex;flex-direction:column;align-items:center;gap:9px;
+      width:100%;background:var(--card);border:none;border-bottom:1px solid var(--line);
+      padding:10px 16px 12px;cursor:pointer;font-family:var(--mono)}
+    .drawer-handle .grab{width:40px;height:4px;border-radius:3px;background:var(--rule)}
+    .dh-row{display:flex;align-items:center;gap:10px;width:100%}
+    .dh-title{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2);font-weight:600}
+    .dh-live{font-size:9.5px;letter-spacing:.14em;color:var(--accent);font-weight:600;
+      display:flex;align-items:center;gap:5px}
+    .dh-live::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--accent)}
+    .dh-chev{margin-left:auto;color:var(--mut);font-size:11px;transition:transform .22s}
+
+    .query.open{max-height:88vh}
+    .query.open .readout{padding:16px;max-height:44vh;overflow:auto;
+      overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+    .query.open .qbox{white-space:normal}
+    .query.open .url{display:block}
+    .query.open .actions{flex-wrap:wrap}
+    .query.open .actions #copyU,.query.open .actions #reset{display:inline-flex}
+    .query.open .dh-chev{transform:rotate(180deg)}
+
+    .drawer-backdrop{display:block;position:fixed;inset:0;z-index:55;
+      background:rgba(20,18,10,.34);opacity:0;pointer-events:none;transition:opacity .2s}
+    body.drawer-open{overflow:hidden}
+    body.drawer-open .drawer-backdrop{opacity:1;pointer-events:auto}
+  }
+
+  @media(max-width:640px){
+    .mast-meta{display:none}
+    .mast-in{padding:16px 18px;gap:14px}
+    h1{font-size:23px}
+    .wrap{padding:0 18px}
+    .foot{padding:13px 18px;gap:5px 16px}
+    .layout{padding:24px 0 40px}
+    .sec{margin-bottom:26px}
+  }
+
+  @media(max-width:600px){
+    input[type=text],input[type=date],input[type=time],input[type=number],select{
+      font-size:16px;padding:12px;min-height:46px}
+    .chip{min-height:44px;padding:0 14px;display:inline-flex;align-items:center}
+  }
+
+  @media(max-width:400px){
+    .grid2,.grid3{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+<header class="mast">
+  <div class="mast-in">
+    <div class="mark">𝕏</div>
+    <div class="id">
+      <div class="kicker">Casefile Bench · Instrument 02</div>
+      <h1>Advanced Search Builder</h1>
+    </div>
+    <div class="mast-meta">
+      <span>X / Twitter</span>
+      <span>Query Compiler</span>
+    </div>
+  </div>
+  <div class="mast-strip"></div>
+</header>
+
+<main class="wrap">
+  <div class="layout">
+
+    <!-- ============ FORM ============ -->
+    <div class="form">
+
+      <section class="sec">
+        <div class="sechd"><span class="ix">00</span><h2>Quick presets</h2><span class="ln"></span></div>
+        <div class="chips" id="presets"></div>
+      </section>
+
+      <section class="sec">
+        <div class="sechd"><span class="ix">01</span><h2>Words</h2><span class="ln"></span></div>
+        <div class="field"><label class="lbl">All of these words</label>
+          <input type="text" id="all" placeholder="ceasefire negotiation"></div>
+        <div class="field"><label class="lbl">Exact phrase</label>
+          <input type="text" id="phrase" placeholder="strait of hormuz"></div>
+        <div class="grid2">
+          <div class="field"><label class="lbl">Any of these (OR)</label>
+            <input type="text" id="any" placeholder="iran OR tehran OR irgc"></div>
+          <div class="field"><label class="lbl">None of these</label>
+            <input type="text" id="none" placeholder="opinion satire"></div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label class="lbl">Hashtags</label>
+            <input type="text" id="tags" placeholder="OSINT geoint"></div>
+          <div class="field"><label class="lbl">Language</label>
+            <select id="lang">
+              <option value="">any</option>
+              <option value="en">English</option><option value="ar">Arabic</option>
+              <option value="fa">Persian</option><option value="ru">Russian</option>
+              <option value="uk">Ukrainian</option><option value="zh">Chinese</option>
+              <option value="es">Spanish</option><option value="fr">French</option>
+              <option value="he">Hebrew</option><option value="tr">Turkish</option>
+              <option value="de">German</option><option value="ja">Japanese</option>
+            </select></div>
+        </div>
+      </section>
+
+      <section class="sec">
+        <div class="sechd"><span class="ix">02</span><h2>Accounts</h2><span class="ln"></span></div>
+        <div class="grid3">
+          <div class="field"><label class="lbl">From (@)</label><input type="text" id="from" placeholder="lamps_apple"></div>
+          <div class="field"><label class="lbl">To / replying to (@)</label><input type="text" id="to" placeholder="handle"></div>
+          <div class="field"><label class="lbl">Mentioning (@)</label><input type="text" id="mention" placeholder="handle"></div>
+        </div>
+      </section>
+
+      <section class="sec">
+        <div class="sechd"><span class="ix">03</span><h2>Time window</h2><span class="ln"></span></div>
+        <div class="grid2">
+          <div class="field"><label class="lbl">Since · date / time</label>
+            <div class="dt"><input type="date" id="since"><input type="time" id="sinceT" step="1"></div></div>
+          <div class="field"><label class="lbl">Until · date / time</label>
+            <div class="dt"><input type="date" id="until"><input type="time" id="untilT" step="1"></div></div>
+        </div>
+        <div class="hint">Time is optional and read as UTC. Leave blank for whole-day precision; a time without a date is ignored.</div>
+        <div class="note">
+          <b class="tag">Field note</b>
+          <p>X's index is shallow for old tweets. For deep history, query narrow windows: pin <b>from:</b> plus a tight <b>since</b> / <b>until</b> range.</p>
+        </div>
+      </section>
+
+      <section class="sec">
+        <div class="sechd"><span class="ix">04</span><h2>Engagement thresholds</h2><span class="ln"></span></div>
+        <div class="grid3">
+          <div class="field"><label class="lbl">Min replies</label><input type="number" id="minr" min="0" placeholder="0"></div>
+          <div class="field"><label class="lbl">Min likes</label><input type="number" id="minf" min="0" placeholder="0"></div>
+          <div class="field"><label class="lbl">Min reposts</label><input type="number" id="minrt" min="0" placeholder="0"></div>
+        </div>
+      </section>
+
+      <section class="sec">
+        <div class="sechd"><span class="ix">05</span><h2>Filters</h2><span class="ln"></span></div>
+        <div class="chips" id="filters"></div>
+      </section>
+
+      <section class="sec">
+        <div class="sechd"><span class="ix">06</span><h2>Geo (optional)</h2><span class="ln"></span></div>
+        <div class="grid2">
+          <div class="field"><label class="lbl">Near (place or "lat,long")</label><input type="text" id="near" placeholder="Tel Aviv"></div>
+          <div class="field"><label class="lbl">Within</label><input type="text" id="within" placeholder="10km"></div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ============ READOUT ============ -->
+    <aside class="side">
+      <section class="panel query" id="queryPanel">
+        <button class="drawer-handle" id="drawerHandle" type="button" aria-expanded="false" aria-controls="queryPanel">
+          <span class="grab"></span>
+          <span class="dh-row">
+            <span class="dh-title">Compiled query</span>
+            <span class="dh-live">Live</span>
+            <span class="dh-chev" aria-hidden="true">▲</span>
+          </span>
+        </button>
+        <div class="panel-hd"><span class="ix">Q</span><h2>Compiled query</h2><span class="live">Live</span></div>
+        <div class="readout">
+          <div class="qbox" id="qbox"><span class="ph">Start filling fields. The query builds itself.</span></div>
+        </div>
+        <div class="actions">
+          <a class="btn primary" id="open" target="_blank" rel="noopener">Open on X &rarr;</a>
+          <button class="btn" id="copyQ">Copy query</button>
+          <button class="btn" id="copyU">Copy URL</button>
+          <button class="btn ghost" id="reset">Reset</button>
+        </div>
+        <div class="url" id="urlline">x.com/search?q=…</div>
+      </section>
+
+      <section class="panel ops">
+        <div class="panel-hd"><span class="ix">i</span><h2>Operator reference</h2></div>
+        <dl>
+          <div class="row"><dt>since:</dt><dd><b>2026-06-01</b> · or <b>2026-06-01_14:30:00_UTC</b> with time</dd></div>
+          <div class="row"><dt>until:</dt><dd><b>2026-06-18</b> · upper bound of the window</dd></div>
+          <div class="row"><dt>filter:</dt><dd>media / images / videos / links / replies / verified</dd></div>
+          <div class="row"><dt>-filter:</dt><dd><b>replies</b> drops replies · <b>min_faves:500</b> sets a floor</dd></div>
+          <div class="row"><dt>syntax</dt><dd><b>"exact"</b> · <b>OR</b> · <b>-exclude</b> · <b>(grouping)</b> · <b>from: to: @mention</b></dd></div>
+        </dl>
+      </section>
+    </aside>
+
+  </div>
+</main>
+
+<div class="drawer-backdrop" id="drawerBackdrop" aria-hidden="true"></div>
+
+<footer>
+  <div class="foot">
+    <span class="dot">●</span><span>Casefile Bench</span>
+    <span>Instrument 02 / Query Compiler</span>
+    <span>No data leaves this page</span>
+    <span class="sp">v2.0</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+
+  const FILTERS=[
+    ['has-links','filter:links','Has links'],
+    ['has-media','filter:media','Has media'],
+    ['has-images','filter:images','Images'],
+    ['has-videos','filter:videos','Videos'],
+    ['native','filter:native_video','Native video'],
+    ['is-verified','filter:verified','Verified only'],
+    ['blue','filter:blue_verified','Blue verified'],
+    ['no-replies','-filter:replies','Exclude replies'],
+    ['only-replies','filter:replies','Only replies'],
+    ['no-rt','-filter:nativeretweets','Exclude reposts'],
+    ['quote','filter:quote','Quotes'],
+    ['link-news','filter:news','News links'],
+  ];
+  const fbox=$('filters');
+  FILTERS.forEach(([id,op,label])=>{
+    const c=document.createElement('div'); c.className='chip'; if(op.startsWith('-'))c.classList.add('neg');
+    c.textContent=label; c.dataset.op=op; c.dataset.id=id;
+    c.addEventListener('click',()=>{c.classList.toggle('on');build();});
+    fbox.appendChild(c);
+  });
+
+  const PRESETS=[
+    ['Viral on topic', {minf:1000, lang:'en'}],
+    ['From an account, no replies', {fromFocus:true, filters:['no-replies']}],
+    ['Media only', {filters:['has-media']}],
+    ['Original posts only', {filters:['no-replies','no-rt']}],
+    ['Persian-language media', {lang:'fa', filters:['has-media']}],
+    ['Links shared about X', {filters:['has-links']}],
+  ];
+  const pbox=$('presets');
+  PRESETS.forEach(([label,cfg])=>{
+    const c=document.createElement('div'); c.className='chip'; c.textContent=label;
+    c.addEventListener('click',()=>applyPreset(cfg));
+    pbox.appendChild(c);
+  });
+  function applyPreset(cfg){
+    if(cfg.minf) $('minf').value=cfg.minf;
+    if(cfg.lang) $('lang').value=cfg.lang;
+    if(cfg.fromFocus) $('from').focus();
+    if(cfg.filters){
+      cfg.filters.forEach(fid=>{
+        const chip=[...fbox.children].find(c=>c.dataset.id===fid);
+        if(chip && !chip.classList.contains('on')) chip.classList.add('on');
+      });
+    }
+    build();
+  }
+
+  const INPUTS=['all','phrase','any','none','tags','lang','from','to','mention','since','sinceT','until','untilT','minr','minf','minrt','near','within'];
+  INPUTS.forEach(id=>$(id).addEventListener('input',build));
+
+  function tokens(){
+    const t=[];
+    const v=id=>$(id).value.trim();
+    if(v('all')) t.push({t:'val',s:v('all')});
+    if(v('phrase')) t.push({t:'val',s:'"'+v('phrase').replace(/"/g,'')+'"'});
+    if(v('any')){
+      const parts=v('any').split(/\s+OR\s+|\s*,\s*|\s+/i).filter(Boolean);
+      if(parts.length>1) t.push({t:'val',s:'('+parts.join(' OR ')+')'});
+      else if(parts.length) t.push({t:'val',s:parts[0]});
+    }
+    if(v('none')) v('none').split(/\s+|,/).filter(Boolean).forEach(w=>t.push({t:'neg',s:'-'+w}));
+    if(v('tags')) v('tags').split(/\s+|,/).filter(Boolean).forEach(h=>t.push({t:'tok',s:'#'+h.replace(/^#/,'')}));
+    if(v('from')) t.push({t:'tok',s:'from:'+v('from').replace(/^@/,'')});
+    if(v('to')) t.push({t:'tok',s:'to:'+v('to').replace(/^@/,'')});
+    if(v('mention')) t.push({t:'tok',s:'@'+v('mention').replace(/^@/,'')});
+    const dt=(dateId,timeId,op)=>{
+      const d=v(dateId); if(!d) return;
+      const tm=v(timeId);
+      if(!tm){ t.push({t:'tok',s:op+':'+d}); return; }
+      const p=tm.split(':'); while(p.length<3) p.push('00');
+      t.push({t:'tok',s:op+':'+d+'_'+p.slice(0,3).join(':')+'_UTC'});
+    };
+    dt('since','sinceT','since');
+    dt('until','untilT','until');
+    if(v('minr')) t.push({t:'tok',s:'min_replies:'+v('minr')});
+    if(v('minf')) t.push({t:'tok',s:'min_faves:'+v('minf')});
+    if(v('minrt')) t.push({t:'tok',s:'min_retweets:'+v('minrt')});
+    if(v('lang')) t.push({t:'tok',s:'lang:'+v('lang')});
+    [...fbox.children].forEach(c=>{ if(c.classList.contains('on')) t.push({t:c.dataset.op.startsWith('-')?'neg':'tok',s:c.dataset.op}); });
+    if(v('near')){
+      const n=v('near'); const near=/,/.test(n)&&/^[\d.\-,\s]+$/.test(n)?'geocode:'+n.replace(/\s/g,'')+(v('within')?','+v('within'):',5km'):'near:"'+n+'"'+(v('within')?' within:'+v('within'):'');
+      t.push({t:'tok',s:near});
+    }
+    return t;
+  }
+
+  function build(){
+    const t=tokens();
+    const qbox=$('qbox');
+    if(!t.length){ qbox.innerHTML='<span class="ph">Start filling fields. The query builds itself.</span>';
+      $('urlline').textContent='x.com/search?q=…'; $('open').removeAttribute('href'); return; }
+    qbox.innerHTML=t.map(x=>'<span class="'+x.t+'">'+esc(x.s)+'</span>').join(' ');
+    const raw=t.map(x=>x.s).join(' ');
+    const url='https://x.com/search?q='+encodeURIComponent(raw)+'&src=typed_query&f=live';
+    $('open').href=url;
+    $('urlline').textContent=url;
+    window.__q=raw; window.__u=url;
+  }
+  function esc(s){return s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+
+  $('copyQ').addEventListener('click',()=>{ if(window.__q){navigator.clipboard.writeText(window.__q).then(()=>flash('copyQ','✓ copied'));}});
+  $('copyU').addEventListener('click',()=>{ if(window.__u){navigator.clipboard.writeText(window.__u).then(()=>flash('copyU','✓ copied'));}});
+  $('reset').addEventListener('click',()=>{
+    INPUTS.forEach(id=>$(id).value=''); [...fbox.children].forEach(c=>c.classList.remove('on')); build();
+  });
+  function flash(id,m){const b=$(id),o=b.textContent;b.textContent=m;setTimeout(()=>b.textContent=o,1600);}
+  build();
+})();
+</script>
+<script>
+/* mobile query drawer */
+(function(){
+  const panel=document.getElementById('queryPanel');
+  const handle=document.getElementById('drawerHandle');
+  const backdrop=document.getElementById('drawerBackdrop');
+  if(!panel||!handle) return;
+  function setOpen(o){
+    panel.classList.toggle('open',o);
+    document.body.classList.toggle('drawer-open',o);
+    handle.setAttribute('aria-expanded',o?'true':'false');
+  }
+  handle.addEventListener('click',()=>setOpen(!panel.classList.contains('open')));
+  if(backdrop) backdrop.addEventListener('click',()=>setOpen(false));
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape') setOpen(false); });
+  // collapse the drawer when leaving mobile so desktop state is clean
+  const mq=window.matchMedia('(max-width:940px)');
+  (mq.addEventListener?mq.addEventListener.bind(mq,'change'):mq.addListener.bind(mq))(e=>{ if(!e.matches) setOpen(false); });
+})();
+</script>
+</body>
+</html>
