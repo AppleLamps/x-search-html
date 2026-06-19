@@ -397,12 +397,34 @@
   });
 
   const PRESETS=[
+    /* engagement */
     ['Viral on topic', {minf:1000, lang:'en'}],
+    ['Viral verified', {minf:500, filters:['is-verified']}],
+    ['Viral video', {minf:500, filters:['has-videos']}],
+    ['Heated conversation', {minr:50}],
+    ['Widely reposted', {minrt:100}],
+    /* content type */
     ['From an account, no replies', {fromFocus:true, filters:['no-replies']}],
-    ['Media only', {filters:['has-media']}],
     ['Original posts only', {filters:['no-replies','no-rt']}],
+    ['Verified originals', {filters:['is-verified','no-replies','no-rt']}],
+    ['Media only', {filters:['has-media']}],
+    ['Images only', {filters:['has-images']}],
+    ['Videos only', {filters:['has-videos']}],
+    ['Native clips only', {filters:['native']}],
+    ['Verified only', {filters:['is-verified']}],
+    ['Reply threads only', {filters:['only-replies']}],
+    ['Quote tweets', {filters:['quote']}],
+    ['News links', {filters:['link-news']}],
+    ['Has links', {filters:['has-links']}],
+    /* language */
+    ['English image posts', {lang:'en', filters:['has-images']}],
     ['Persian-language media', {lang:'fa', filters:['has-media']}],
-    ['Links shared about X', {filters:['has-links']}],
+    ['Arabic-language media', {lang:'ar', filters:['has-media']}],
+    ['Russian-language media', {lang:'ru', filters:['has-media']}],
+    ['Hebrew-language media', {lang:'he', filters:['has-media']}],
+    /* time */
+    ['Last 7 days', {sinceDays:7}],
+    ['Last 24 hours', {sinceHours:24}],
   ];
   const pbox=$('presets');
   PRESETS.forEach(([label,cfg])=>{
@@ -411,8 +433,28 @@
     pbox.appendChild(c);
   });
   function applyPreset(cfg){
+    if(cfg.all) $('all').value=cfg.all;
+    if(cfg.phrase) $('phrase').value=cfg.phrase;
+    if(cfg.any) $('any').value=cfg.any;
+    if(cfg.none) $('none').value=cfg.none;
+    if(cfg.tags) $('tags').value=cfg.tags;
+    if(cfg.minr) $('minr').value=cfg.minr;
     if(cfg.minf) $('minf').value=cfg.minf;
+    if(cfg.minrt) $('minrt').value=cfg.minrt;
     if(cfg.lang) $('lang').value=cfg.lang;
+    if(cfg.near) $('near').value=cfg.near;
+    if(cfg.within) $('within').value=cfg.within;
+    if(cfg.since) $('since').value=cfg.since;
+    if(cfg.sinceT) $('sinceT').value=cfg.sinceT;
+    if(cfg.until) $('until').value=cfg.until;
+    if(cfg.untilT) $('untilT').value=cfg.untilT;
+    /* relative time windows — computed in UTC at click time */
+    if(cfg.sinceDays!=null||cfg.sinceHours!=null){
+      const ms=(cfg.sinceDays||0)*864e5+(cfg.sinceHours||0)*36e5;
+      const iso=new Date(Date.now()-ms).toISOString();
+      $('since').value=iso.slice(0,10);
+      if(cfg.sinceHours!=null) $('sinceT').value=iso.slice(11,19);
+    }
     if(cfg.fromFocus) $('from').focus();
     if(cfg.filters){
       cfg.filters.forEach(fid=>{

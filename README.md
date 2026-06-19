@@ -12,7 +12,7 @@ Designed as a "casefile instrument": warm-paper palette, a single signal accent,
 - **Engagement thresholds** - `min_replies:`, `min_faves:`, `min_retweets:`.
 - **Filters** - media, images, videos, native video, verified, blue verified, replies, reposts, quotes, news (each as a toggle, with exclude variants).
 - **Geo** - `near:` / `within:`, or a `geocode:` form when given `lat,long`.
-- **Quick presets** - one-tap starting points (viral, original-only, media-only, and so on).
+- **Quick presets** - one-tap starting points grouped by intent: engagement (viral on topic, viral verified, viral video, heated conversation, widely reposted), content type (original-only, verified originals, media/images/videos/native clips, verified, reply threads, quotes, news, links), language (English image posts, Persian/Arabic/Russian/Hebrew media), and relative time (last 7 days, last 24 hours - computed in UTC at click time). Presets merge into the current form rather than resetting it.
 - **Live readout** - syntax-highlighted query plus the full `x.com/search` URL, with copy-query, copy-URL, open, and reset actions.
 - **Mobile** - the query panel becomes a bottom-sheet drawer so the result stays reachable while filling the form; touch-sized controls, no iOS focus-zoom.
 
