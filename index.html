@@ -99,6 +99,31 @@
     border-radius:0;color:var(--ink2);padding:5px 11px 5px 10px}
   #presets .chip:hover{background:rgba(189,58,34,.08);color:var(--ink)}
 
+  /* presets — mobile: real pill chips in a clean grid, no clipped overflow */
+  #presets-toggle{display:none}
+  @media(max-width:640px){
+    #presets{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    #presets .chip{display:flex;align-items:center;text-align:left;
+      background:var(--field);border:1px solid var(--line);border-left:2px solid var(--accent);
+      border-radius:6px;padding:8px 12px;min-height:48px;
+      white-space:normal;line-height:1.3;color:var(--ink2)}
+    #presets .chip:hover{background:var(--field);color:var(--ink2)}
+    #presets .chip:active{background:rgba(189,58,34,.1);border-color:var(--accent);color:var(--ink)}
+    /* collapsed: only the first two presets are shown */
+    #presets.collapsed .chip:nth-child(n+3){display:none}
+    #presets-toggle{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;
+      margin-top:10px;min-height:46px;padding:0 14px;cursor:pointer;
+      font-family:var(--mono);font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;
+      color:var(--accent);background:transparent;border:1px dashed var(--accent);border-radius:6px}
+    #presets-toggle:active{background:rgba(189,58,34,.08)}
+    #presets-toggle::after{content:"";width:7px;height:7px;border-right:1.5px solid var(--accent);
+      border-bottom:1.5px solid var(--accent);transform:rotate(45deg);margin-top:-3px;transition:transform .15s}
+    #presets-toggle[aria-expanded="true"]::after{transform:rotate(-135deg);margin-top:2px}
+  }
+  @media(max-width:360px){
+    #presets{grid-template-columns:1fr}
+  }
+
   /* ---- note ---- */
   .note{margin-top:16px;border-left:2px solid var(--accent);padding:2px 0 2px 14px}
   .note b.tag{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;
@@ -246,6 +271,7 @@
       <section class="sec">
         <div class="sechd"><span class="ix">00</span><h2>Quick presets</h2><span class="ln"></span></div>
         <div class="chips" id="presets"></div>
+        <button type="button" id="presets-toggle" aria-expanded="false" aria-controls="presets" hidden></button>
       </section>
 
       <section class="sec">
@@ -432,6 +458,22 @@
     c.addEventListener('click',()=>applyPreset(cfg));
     pbox.appendChild(c);
   });
+
+  /* mobile: show only the first 2 presets, collapse the rest behind a toggle */
+  const PRESET_VISIBLE=2;
+  const ptoggle=$('presets-toggle');
+  const hiddenCount=Math.max(0,PRESETS.length-PRESET_VISIBLE);
+  function setPresetsExpanded(expanded){
+    pbox.classList.toggle('collapsed',!expanded);
+    ptoggle.setAttribute('aria-expanded',String(expanded));
+    ptoggle.textContent=expanded?'Show fewer presets':`Show all presets (${hiddenCount} more)`;
+  }
+  if(hiddenCount>0){
+    ptoggle.hidden=false;
+    setPresetsExpanded(false);
+    ptoggle.addEventListener('click',()=>
+      setPresetsExpanded(ptoggle.getAttribute('aria-expanded')!=='true'));
+  }
   function applyPreset(cfg){
     if(cfg.all) $('all').value=cfg.all;
     if(cfg.phrase) $('phrase').value=cfg.phrase;
